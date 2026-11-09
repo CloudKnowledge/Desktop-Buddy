@@ -1,0 +1,9 @@
+bin/
+obj/
+dist/
+preview-out/
+*.user
+.vs/
+.idea/
+TestResults/
+.DS_Store

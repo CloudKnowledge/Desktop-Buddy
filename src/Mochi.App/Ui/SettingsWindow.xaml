@@ -1,0 +1,308 @@
+<Window x:Class="Mochi.App.Ui.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Mochi settings" Width="860" Height="640" MinWidth="700" MinHeight="500"
+        WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="16,12" />
+            <Setter Property="Margin" Value="0,0,0,8" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
+        </Style>
+        <Style x:Key="Hint" TargetType="TextBlock">
+            <Setter Property="Opacity" Value="0.72" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Margin" Value="0,2,12,0" />
+        </Style>
+        <Style x:Key="Label" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+        <Style x:Key="PageTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="26" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,0,0,14" />
+        </Style>
+        <Style x:Key="Section" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="2,14,0,8" />
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="240" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <DockPanel Grid.Column="0" Margin="16,16,8,16">
+            <Border DockPanel.Dock="Top" CornerRadius="12" Height="170" Margin="0,0,0,10"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
+                <Image x:Name="PreviewImage" Width="200" Height="160" />
+            </Border>
+            <TextBlock x:Name="PetTitle" DockPanel.Dock="Top" FontSize="22" FontWeight="SemiBold" Margin="6,2,0,0" />
+            <TextBlock x:Name="PetMood" DockPanel.Dock="Top" Opacity="0.7" Margin="6,0,0,12" />
+            <ListBox x:Name="Nav" SelectionChanged="OnNavChanged" BorderThickness="0" Background="Transparent">
+                <ListBoxItem Tag="CharacterPage">Character</ListBoxItem>
+                <ListBoxItem Tag="PersonalityPage">Personality</ListBoxItem>
+                <ListBoxItem Tag="BehaviourPage">Animation &amp; behaviour</ListBoxItem>
+                <ListBoxItem Tag="SleepPage">Sleep schedule</ListBoxItem>
+                <ListBoxItem Tag="DesktopPage">Desktop &amp; startup</ListBoxItem>
+                <ListBoxItem Tag="PrivacyPage">Privacy</ListBoxItem>
+                <ListBoxItem Tag="AboutPage">About</ListBoxItem>
+            </ListBox>
+        </DockPanel>
+
+        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+            <Grid Margin="16,20,28,24">
+
+                <!-- Character -->
+                <StackPanel x:Name="CharacterPage">
+                    <TextBlock Style="{StaticResource PageTitle}" Text="Character" />
+                    <Border Style="{StaticResource Card}">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Label}" Text="Name" />
+                                <TextBlock Style="{StaticResource Hint}" Text="What should your kitten be called?" />
+                            </StackPanel>
+                            <TextBox x:Name="NameBox" Grid.Column="1" Width="220" MaxLength="24" VerticalAlignment="Center" TextChanged="OnNameChanged" />
+                        </Grid>
+                    </Border>
+                    <Border Style="{StaticResource Card}">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Label}" Text="Coat" />
+                                <TextBlock Style="{StaticResource Hint}" Text="Tabby colours." />
+                            </StackPanel>
+                            <ComboBox x:Name="CoatBox" Grid.Column="1" Width="220" VerticalAlignment="Center" SelectionChanged="OnLookChanged">
+                                <ComboBoxItem>Golden</ComboBoxItem>
+                                <ComboBoxItem>Cream</ComboBoxItem>
+                                <ComboBoxItem>Ginger</ComboBoxItem>
+                                <ComboBoxItem>Silver</ComboBoxItem>
+                            </ComboBox>
+                        </Grid>
+                    </Border>
+                    <Border Style="{StaticResource Card}">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Label}" Text="Accessory" />
+                                <TextBlock Style="{StaticResource Hint}" Text="Twinkling fairy lights, a bell collar or a hair bow (the colour is for the collar and bow)." />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <ComboBox x:Name="AccessoryBox" Width="120" Margin="0,0,8,0" SelectionChanged="OnLookChanged">
+                                    <ComboBoxItem>None</ComboBoxItem>
+                                    <ComboBoxItem>Bell collar</ComboBoxItem>
+                                    <ComboBoxItem>Hair bow</ComboBoxItem>
+                                    <ComboBoxItem>Fairy lights</ComboBoxItem>
+                                </ComboBox>
+                                <ComboBox x:Name="ColourBox" Width="140" SelectionChanged="OnLookChanged" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    <Border Style="{StaticResource Card}">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Label}" Text="Size" />
+                                <TextBlock x:Name="SizeText" Style="{StaticResource Hint}" />
+                            </StackPanel>
+                            <Slider x:Name="SizeSlider" Grid.Column="1" Width="220" Minimum="0.6" Maximum="2.0" TickFrequency="0.1"
+                                    IsSnapToTickEnabled="True" VerticalAlignment="Center" ValueChanged="OnSizeChanged" />
+                        </Grid>
+                    </Border>
+                </StackPanel>
+
+                <!-- Personality -->
+                <StackPanel x:Name="PersonalityPage" Visibility="Collapsed">
+                    <TextBlock Style="{StaticResource PageTitle}" Text="Personality" />
+                    <TextBlock Style="{StaticResource Hint}" Margin="2,0,0,10"
+                               Text="Pick a starting personality. Over time Mochi gently adapts to how you spend time together – pets make it more affectionate, teasing makes it more mischievous. It never sulks or makes you feel guilty." />
+                    <StackPanel x:Name="PersonalityList" />
+                    <TextBlock Style="{StaticResource Section}" Text="What Mochi has learned" />
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <ItemsControl x:Name="TraitList" />
+                            <Button Content="Reset learned personality" HorizontalAlignment="Left" Margin="0,10,0,0" Click="OnResetTraits" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- Behaviour -->
+                <StackPanel x:Name="BehaviourPage" Visibility="Collapsed">
+                    <TextBlock Style="{StaticResource PageTitle}" Text="Animation &amp; behaviour" />
+                    <Border Style="{StaticResource Card}">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Label}" Text="Liveliness" />
+                                <TextBlock Style="{StaticResource Hint}" Text="How often Mochi wanders and plays on its own. Calm keeps it mostly sitting near you." />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <Slider x:Name="LivelySlider" Width="220" Minimum="0" Maximum="1" TickFrequency="0.1" IsSnapToTickEnabled="True" ValueChanged="OnLivelyChanged" />
+                                <Grid Width="220"><TextBlock Text="Calm" Style="{StaticResource Hint}" /><TextBlock Text="Lively" HorizontalAlignment="Right" Style="{StaticResource Hint}" Margin="0,2,0,0" /></Grid>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    <Border Style="{StaticResource Card}">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Label}" Text="Hearts, sparkles and Zzz" />
+                                <TextBlock Style="{StaticResource Hint}" Text="Little floating effects around Mochi." />
+                            </StackPanel>
+                            <CheckBox x:Name="EffectsBox" Grid.Column="1" VerticalAlignment="Center" Click="OnToggle" />
+                        </Grid>
+                    </Border>
+                    <Border Style="{StaticResource Card}">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Label}" Text="Smoothness" />
+                                <TextBlock Style="{StaticResource Hint}" Text="Maximum frame rate while Mochi moves. Mochi always slows down when resting and stops drawing when hidden." />
+                            </StackPanel>
+                            <ComboBox x:Name="FpsBox" Grid.Column="1" Width="220" VerticalAlignment="Center" SelectionChanged="OnFpsChanged">
+                                <ComboBoxItem>Silky (60 fps)</ComboBoxItem>
+                                <ComboBoxItem>Battery saver (30 fps)</ComboBoxItem>
+                            </ComboBox>
+                        </Grid>
+                    </Border>
+                    <TextBlock x:Name="PerfText" Style="{StaticResource Hint}" Margin="4,6,0,0" />
+                </StackPanel>
+
+                <!-- Sleep -->
+                <StackPanel x:Name="SleepPage" Visibility="Collapsed">
+                    <TextBlock Style="{StaticResource PageTitle}" Text="Sleep schedule" />
+                    <Border Style="{StaticResource Card}">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Label}" Text="Nap when I'm away" />
+                                <TextBlock Style="{StaticResource Hint}" Text="Mochi gets drowsy and falls asleep when the keyboard and mouse have been idle, and wakes up gradually when you return." />
+                            </StackPanel>
+                            <CheckBox x:Name="AutoSleepBox" Grid.Column="1" VerticalAlignment="Center" Click="OnToggle" />
+                        </Grid>
+                    </Border>
+                    <Border Style="{StaticResource Card}">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Label}" Text="Gets drowsy after" />
+                                <TextBlock x:Name="DrowsyText" Style="{StaticResource Hint}" />
+                            </StackPanel>
+                            <Slider x:Name="DrowsySlider" Grid.Column="1" Width="220" Minimum="30" Maximum="600" TickFrequency="15" IsSnapToTickEnabled="True" VerticalAlignment="Center" ValueChanged="OnSleepTimesChanged" />
+                        </Grid>
+                    </Border>
+                    <Border Style="{StaticResource Card}">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Label}" Text="Falls asleep after" />
+                                <TextBlock x:Name="SleepText" Style="{StaticResource Hint}" />
+                            </StackPanel>
+                            <Slider x:Name="SleepSlider" Grid.Column="1" Width="220" Minimum="60" Maximum="1800" TickFrequency="30" IsSnapToTickEnabled="True" VerticalAlignment="Center" ValueChanged="OnSleepTimesChanged" />
+                        </Grid>
+                    </Border>
+                    <TextBlock Style="{StaticResource Hint}" Margin="4,6,0,0"
+                               Text="Away-detection uses only the Windows idle timer (the time since your last key press or mouse move). Mochi never reads what you type, never uses the camera or microphone, and never keeps your computer awake." />
+                </StackPanel>
+
+                <!-- Desktop -->
+                <StackPanel x:Name="DesktopPage" Visibility="Collapsed">
+                    <TextBlock Style="{StaticResource PageTitle}" Text="Desktop &amp; startup" />
+                    <Border Style="{StaticResource Card}">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Label}" Text="Start Mochi when I sign in" />
+                                <TextBlock Style="{StaticResource Hint}" Text="Adds Mochi to your personal startup list (Task Manager → Startup apps). No administrator rights." />
+                            </StackPanel>
+                            <CheckBox x:Name="StartupBox" Grid.Column="1" VerticalAlignment="Center" Click="OnToggle" />
+                        </Grid>
+                    </Border>
+                    <Border Style="{StaticResource Card}">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Label}" Text="Hide from screen sharing and recordings" />
+                                <TextBlock Style="{StaticResource Hint}" Text="Mochi stays visible to you but is invisible in Teams screen sharing, screenshots and recordings." />
+                            </StackPanel>
+                            <CheckBox x:Name="CaptureBox" Grid.Column="1" VerticalAlignment="Center" Click="OnToggle" />
+                        </Grid>
+                    </Border>
+                    <Border Style="{StaticResource Card}">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Label}" Text="Hide during full-screen apps and presentations" />
+                                <TextBlock Style="{StaticResource Hint}" Text="Slide shows, full-screen videos and games get the whole screen. Mochi comes back afterwards." />
+                            </StackPanel>
+                            <CheckBox x:Name="FullscreenBox" Grid.Column="1" VerticalAlignment="Center" Click="OnToggle" />
+                        </Grid>
+                    </Border>
+                    <Border Style="{StaticResource Card}">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Label}" Text="Ghost mode (click-through)" />
+                                <TextBlock Style="{StaticResource Hint}" Text="Clicks pass straight through Mochi to the app underneath. Turn it off again from the tray icon." />
+                            </StackPanel>
+                            <CheckBox x:Name="GhostBox" Grid.Column="1" VerticalAlignment="Center" Click="OnToggle" />
+                        </Grid>
+                    </Border>
+                </StackPanel>
+
+                <!-- Privacy -->
+                <StackPanel x:Name="PrivacyPage" Visibility="Collapsed">
+                    <TextBlock Style="{StaticResource PageTitle}" Text="Privacy" />
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource Label}" Text="Mochi runs entirely on this computer." />
+                            <TextBlock Style="{StaticResource Hint}" Margin="0,8,0,0" xml:space="preserve">• Uses the Windows idle timer (a timestamp) to notice when you are away.
+• Reads the mouse-pointer position each frame so Mochi can look at it. Nothing is stored.
+• No keyboard logging, no camera, no microphone, no screenshots or screen recording.
+• No network access, no accounts, no telemetry.
+• Remembers only its settings, position and a few interaction counters in your profile folder.</TextBlock>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Open Mochi's data folder" Click="OnOpenData" Margin="0,0,8,0" />
+                            <Button Content="Forget everything Mochi remembers" Click="OnForget" />
+                        </StackPanel>
+                    </Border>
+                    <TextBlock x:Name="DataPathText" Style="{StaticResource Hint}" Margin="4,4,0,0" />
+                </StackPanel>
+
+                <!-- About -->
+                <StackPanel x:Name="AboutPage" Visibility="Collapsed">
+                    <TextBlock Style="{StaticResource PageTitle}" Text="About Mochi" />
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock x:Name="VersionText" Style="{StaticResource Label}" />
+                            <TextBlock Style="{StaticResource Hint}" Margin="0,6,0,0"
+                                       Text="A fluffy golden tabby kitten with big teal eyes that lives on your desktop. Drawn live by a procedural 2D skeletal rig (SkiaSharp), so every pose stays consistent and crisp at any size." />
+                            <TextBlock x:Name="StatsText" Style="{StaticResource Hint}" Margin="0,10,0,0" />
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource Label}" Text="Tips" />
+                            <TextBlock Style="{StaticResource Hint}" Margin="0,6,0,0" xml:space="preserve">• Click Mochi for a happy little leap; click quickly several times and it gets the zoomies.
+• Gently stroke the pointer back and forth over its head: it purrs, and soon starts kneading.
+• Press and hold (or drag) to pick Mochi up; let go and it always lands on its feet.
+• Wiggle the pointer near Mochi and it may stalk and pounce. Slow-blink back when it slow-blinks at you…</TextBlock>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</Window>

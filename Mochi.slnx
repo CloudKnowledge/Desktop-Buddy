@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Mochi.App/Mochi.App.csproj" />
+    <Project Path="src/Mochi.Core/Mochi.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Mochi.Core.Tests/Mochi.Core.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/Mochi.Preview/Mochi.Preview.csproj" />
+  </Folder>
+</Solution>
