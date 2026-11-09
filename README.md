@@ -13,8 +13,8 @@ There is also an [iPhone and iPad version](#iphone-and-ipad) with the same kitte
 
 | Option | How |
 |---|---|
-| **Installer (recommended)** | Run `dist\Mochi-Setup.exe`. Installs for your user only (no admin) to `%LOCALAPPDATA%\Programs\Mochi`, adds a Start-menu shortcut and an entry in **Settings → Apps** and starts Mochi. |
-| **Portable** | Run `dist\Mochi.exe` from anywhere. |
+| **Installer (recommended)** | Download `Mochi-Setup.exe` from the [latest release](https://github.com/CloudKnowledge/Desktop-Buddy/releases/latest) (or build it yourself: `dist\Mochi-Setup.exe`) and run it. Installs for your user only (no admin) to `%LOCALAPPDATA%\Programs\Mochi`, adds a Start-menu shortcut and an entry in **Settings → Apps** and starts Mochi. |
+| **Portable** | Download `Mochi.exe` from the same release (or `dist\Mochi.exe`) and run it from anywhere. |
 | **Uninstall** | **Settings → Apps → Mochi – desktop kitten → Uninstall** (or run `Mochi.exe --uninstall`). It offers to delete settings/memories too. |
 
 Both executables are self-contained (no .NET installation needed) and run on Windows 10 (2004+) and Windows 11.
