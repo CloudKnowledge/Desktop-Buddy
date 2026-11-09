@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-ios</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <SupportedOSPlatformVersion>15.0</SupportedOSPlatformVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Mochi</AssemblyName>
+    <RootNamespace>Mochi.iOS</RootNamespace>
+    <!-- Settings and memory are saved with reflection-based System.Text.Json (shared with the Windows app). -->
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Mochi.Core\Mochi.Core.csproj" />
+    <PackageReference Include="SkiaSharp.Views" Version="4.155.0" />
+  </ItemGroup>
+
+</Project>

@@ -3,6 +3,7 @@ using Mochi.Core.Behaviour;
 using Mochi.Core.Persistence;
 using Mochi.Core.Play;
 using Mochi.Core.Rig;
+using Mochi.Core.Stage;
 using SkiaSharp;
 
 // Renders contact sheets of Mochi's poses for visual QA, measures render cost and builds the app icon.
@@ -35,6 +36,144 @@ if (iconArg >= 0 && iconArg + 1 < args.Length)
 
 var outDir = args.Length > 0 && !args[0].StartsWith("--") ? args[0] : Path.Combine(Environment.CurrentDirectory, "preview-out");
 Directory.CreateDirectory(outDir);
+
+// --ios-icon <path.png>: the iPhone/iPad app icon (1024 px, opaque: iOS rounds the corners itself).
+var iosIconArg = Array.IndexOf(args, "--ios-icon");
+if (iosIconArg >= 0 && iosIconArg + 1 < args.Length)
+{
+    var pngPath = Path.GetFullPath(args[iosIconArg + 1]);
+    Directory.CreateDirectory(Path.GetDirectoryName(pngPath)!);
+    using var surface = SKSurface.Create(new SKImageInfo(1024, 1024, SKColorType.Rgba8888, SKAlphaType.Opaque));
+    var c = surface.Canvas;
+    using (var sh = SKShader.CreateLinearGradient(new SKPoint(0, 0), new SKPoint(0, 1024), [new SKColor(0xFF, 0xF3, 0xE4), new SKColor(0xF7, 0xCF, 0xAE)], null, SKShaderTileMode.Clamp))
+    using (var bg = new SKPaint { Shader = sh })
+        c.DrawRect(0, 0, 1024, 1024, bg);
+    using (var face = IconArt.RenderFace(PetLook.Golden, 900))
+    using (var img = SKImage.FromBitmap(face))
+        c.DrawImage(img, 62, 92, new SKSamplingOptions(SKFilterMode.Linear));
+    Save(surface, pngPath);
+    Console.WriteLine($"Wrote {pngPath}");
+    return;
+}
+
+// --phone: the iPhone app's screen at a few moments, from the real touch-screen host (room, kitten, ball).
+if (args.Contains("--phone"))
+{
+    const float px = 1.5f, W = 390, H = 844, cellW = W * px + 70;
+    var shots = new List<(string Name, PetStage Stage)>();
+    var afternoon = DateTime.Today.AddHours(14);
+
+    PetStage Phone(int seed, DateTime local)
+    {
+        var s = new PetStage(new MochiSettings(), new PetMemory(), seed);
+        s.Resize(W, H, 0, 59, 0, 83, local);
+        return s;
+    }
+
+    double Run(PetStage s, double t, double max, DateTime local, Func<PetStage, double, bool> until)
+    {
+        double end = t + max;
+        for (; t < end; t += 1 / 60.0)
+        {
+            s.Tick(t, local);
+            if (until(s, t)) break;
+        }
+        return t;
+    }
+
+    var hello = Phone(1, afternoon);
+    Run(hello, 0, 4, afternoon, (s, _) => s.Brain.Animator.Output.Wave > 0.9f);
+    shots.Add(("Opening the app: Hi!", hello));
+
+    var petting = Phone(2, afternoon);
+    double pt = Run(petting, 0, 60, afternoon, (s, t) => t > 6 && s.Brain.State is PetState.Sitting or PetState.Idle);
+    var head = petting.Brain.HeadWorld;
+    petting.TouchBegan(head, pt);
+    for (int i = 1; i <= 100; i++)
+    {
+        pt += 1 / 60.0;
+        petting.TouchMoved(new SKPoint(head.X + 18f * MathF.Sin(i * 0.2f), head.Y), pt);
+        petting.Tick(pt, afternoon);
+    }
+    shots.Add(("Stroking it with a finger", petting));
+
+    for (int seed = 3; seed < 40; seed++)
+    {
+        var probe = Phone(seed, afternoon);
+        double t0 = Run(probe, 0, 6, afternoon, (_, t) => t > 5);
+        probe.Brain.ThrowBall();
+        Run(probe, t0, 6, afternoon, (s, _) => s.Brain.BallCatches > 0);
+        if (probe.Brain.BallCatches == 0) continue;
+        shots.Add(("Play ball: caught it!", probe));
+        break;
+    }
+
+    var work = Phone(41, afternoon);
+    double wt = Run(work, 0, 6, afternoon, (_, t) => t > 5);
+    work.Brain.CommandWork();
+    Run(work, wt, 10, afternoon, (s, t) => t > wt + 2.5 && s.Brain.Animator.Output.Knead > 0.7f);
+    shots.Add(("Work with me", work));
+
+    var night = DateTime.Today.AddHours(22.5);
+    var nap = Phone(42, night);
+    double nt = Run(nap, 0, 6, night, (_, t) => t > 5);
+    nap.Brain.CommandSleep();
+    Run(nap, nt, 6, night, (_, t) => t > nt + 5);
+    shots.Add(("Night: fast asleep", nap));
+
+    var info = new SKImageInfo((int)(40 + shots.Count * cellW), (int)(H * px + 150));
+    using var surface = SKSurface.Create(info);
+    var c = surface.Canvas;
+    c.Clear(new SKColor(0xEE, 0xEF, 0xF3));
+    using var font = new SKFont(SKTypeface.FromFamilyName("Segoe UI", SKFontStyle.Bold), 26f);
+    using var small = new SKFont(SKTypeface.FromFamilyName("Segoe UI", SKFontStyle.Bold), 11f * px);
+    using var paint = new SKPaint { IsAntialias = true };
+    for (int i = 0; i < shots.Count; i++)
+    {
+        var (name, s) = shots[i];
+        float ox = 50 + i * cellW, oy = 40;
+        var screen = new SKRect(ox, oy, ox + W * px, oy + H * px);
+        paint.Color = new SKColor(0x1C, 0x1C, 0x1E);
+        c.DrawRoundRect(SKRect.Inflate(screen, 14, 14), 72, 72, paint);
+        c.Save();
+        c.ClipRoundRect(new SKRoundRect(screen, 60), antialias: true);
+        c.Translate(ox, oy);
+        s.DrawRoom(c, px);
+        s.Layout(px);
+        c.Save();
+        c.Translate(s.PetFrame.Left * px, s.PetFrame.Top * px);
+        c.ClipRect(new SKRect(0, 0, s.PetFrame.Width * px, s.PetFrame.Height * px));
+        s.DrawPet(c, px);
+        c.Restore();
+        if (s.HasBall)
+        {
+            c.Save();
+            c.Translate(s.BallFrame.Left * px, s.BallFrame.Top * px);
+            s.DrawBall(c, px);
+            c.Restore();
+        }
+        // Stand-ins for the native parts: status bar, toolbar and home indicator.
+        bool dark = s.IsNightRoom;
+        paint.Color = dark ? new SKColor(0x1C, 0x1C, 0x1E, 225) : new SKColor(0xF9, 0xF9, 0xF9, 225);
+        c.DrawRect(0, (H - 83) * px, W * px, 83 * px, paint);
+        paint.Color = new SKColor(0x0A, 0x84, 0xFF);
+        string[] items = ["Ball", "Feed", "TV", "Work", "Nap", "More"];
+        for (int j = 0; j < items.Length; j++)
+            c.DrawText(items[j], (W * (j + 0.5f) / items.Length) * px, (H - 55) * px, SKTextAlign.Center, small, paint);
+        paint.Color = dark ? SKColors.White : SKColors.Black;
+        c.DrawRoundRect(new SKRect((W / 2 - 67) * px, (H - 13) * px, (W / 2 + 67) * px, (H - 8) * px), 3 * px, 3 * px, paint);
+        c.DrawText("9:41", 52 * px, 37 * px, SKTextAlign.Center, small, paint);
+        paint.Color = SKColors.Black;
+        c.DrawRoundRect(new SKRect((W / 2 - 63) * px, 11 * px, (W / 2 + 63) * px, 48 * px), 19 * px, 19 * px, paint);
+        c.Restore();
+        paint.Color = new SKColor(0x2B, 0x2B, 0x33);
+        c.DrawText(name, ox + W * px / 2, oy + H * px + 75, SKTextAlign.Center, font, paint);
+    }
+    Save(surface, Path.Combine(outDir, "phone-film.png"));
+    Console.WriteLine($"Wrote phone-film ({shots.Count} screens)");
+    foreach (var (_, s) in shots) s.Dispose();
+    return;
+}
 
 // --life: films everyday moments (hello, snacks, cat TV, chase, catching the ball) from the real brain.
 if (args.Contains("--life"))

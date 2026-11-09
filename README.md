@@ -5,6 +5,7 @@ lives on your Windows desktop. It sits on top of your
 taskbar with its tail tucked around its paws, wanders around, curls up for a nap when you step away, wakes up
 and greets you when you come back, and purrs when you stroke its head. It is a native desktop app (not a
 website, GIF or screensaver), it is drawn live in HD at any size, and it stays out of the way of your work.
+There is also an [iPhone and iPad version](#iphone-and-ipad) with the same kitten.
 
 ![Mochi at real size on dark and light backgrounds](docs/images/realsize.png)
 
@@ -56,6 +57,27 @@ treats every so often, settles down to watch cat TV, works on its laptop (more o
 plays with its ball and more – with randomised timing and
 cool-downs so it never loops robotically and never demands attention.
 
+## iPhone and iPad
+
+The iPhone/iPad app ([src/Mochi.iOS](src/Mochi.iOS)) shares Mochi's brain, drawing and ball physics with the Windows
+app. iOS doesn't let an app float on top of other apps, so on a phone Mochi lives in its own cosy room, whose
+window shows the sky by day and the moon and stars at night.
+
+![Mochi on an iPhone: saying hi, being stroked, catching the ball, working and asleep at night](docs/images/iphone.png)
+
+| You do | Mochi does |
+|---|---|
+| Open the app, or come back to it after a couple of minutes | Waves and says **"Hi!"** |
+| Tap Mochi / double-tap / tap many times | A happy hop / a twisting leap / the kitten crazies (10 taps: secret celebration) |
+| Stroke its head with a finger | Closes its eyes, purrs, leans in and kneads |
+| Press and hold Mochi, then drag and let go | Picks it up (it dangles and swings); a flick sends it flying and it lands on its feet |
+| Slide a finger quickly along the floor towards it | A game of chase: it scampers off, looks back and play-bows |
+| **Ball** button, or tap the ball | Throws the yarn ball: Mochi catches it in mid-air and brings it back. Flick the ball to throw it yourself; press and hold the button to put it away |
+| **Feed**, **TV**, **Work**, **Nap** | Milk or treats, cat TV, work mode (glasses and a laptop), sleep / wake up |
+| **More** | Pet, say hi, coat and accessory |
+
+Settings and memories stay on the device.
+
 ## Settings
 
 Right-click → **Settings…** (Windows 11 Fluent style, applies instantly):
@@ -86,18 +108,34 @@ Requirements: Windows 10/11 and the .NET 10 SDK.
 
 ```powershell
 dotnet build Mochi.slnx                       # build everything
-dotnet test tests/Mochi.Core.Tests            # 71 unit tests: behaviour, gestures, physics, ball play, persistence, rendering
+dotnet test tests/Mochi.Core.Tests            # 80 unit tests: behaviour, gestures, touch, physics, ball play, persistence, rendering
 dotnet run --project src/Mochi.App            # run Mochi from source
 dotnet run --project tools/Mochi.Preview      # render pose contact sheets to preview-out/ (+ timing); --pose <name> for one big pose
+dotnet run --project tools/Mochi.Preview -- preview-out --phone   # iPhone screens from the touch-screen host
 pwsh -File build/publish.ps1                  # tests + self-contained dist/Mochi.exe and dist/Mochi-Setup.exe
 ```
+
+### iPhone / iPad app
+
+Building an iOS app needs a Mac with Xcode, plus the .NET 10 SDK with the iOS workload (`dotnet workload install ios`):
+
+```bash
+dotnet build src/Mochi.iOS -t:Run                                  # build and run in the iOS Simulator
+dotnet build src/Mochi.iOS -t:Run -p:RuntimeIdentifier=ios-arm64    # on a connected iPhone/iPad (needs code signing)
+```
+
+For a real device, set `CFBundleIdentifier` in [src/Mochi.iOS/Info.plist](src/Mochi.iOS/Info.plist) to an app ID your
+Apple developer team owns, with a matching provisioning profile installed through Xcode. `Mochi.iOS.slnx` opens the iOS
+app together with the shared core and its tests in Rider or VS Code (C# Dev Kit + .NET MAUI extension).
 
 Project layout (details in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)):
 
 ```
-src/Mochi.Core      platform-neutral: rig + renderer, animator, behaviour state machine, gestures, effects, persistence
+src/Mochi.Core      platform-neutral: rig + renderer, animator, behaviour state machine, gestures, effects, persistence,
+                    and the touch-screen stage (room, touch input, view layout) used by the iPhone/iPad app
 src/Mochi.App       Windows host: layered window, tray/menus, settings (WPF Fluent), installer, idle/lock/fullscreen detection
-tools/Mochi.Preview visual QA contact sheets and app-icon generation
+src/Mochi.iOS       iPhone/iPad host: room, kitten and ball views, toolbar, touches, frame loop (Mochi.iOS.slnx)
+tools/Mochi.Preview visual QA contact sheets, iPhone screens, and app-icon generation
 tests/              xUnit tests for Mochi.Core
 ```
 
@@ -136,6 +174,7 @@ tests/              xUnit tests for Mochi.Core
 
 - [x] Phase 2: yarn ball – throw it (menu, click or drag-and-fling), physics with bounces and rolling, mid-air catches, fetch back to you, solo batting/stalking/pouncing
 - [x] Saying "Hi!" with a wave at sign-in and when the laptop wakes; snacks (milk, treats); cat TV; working on a laptop; game of chase with the pointer
+- [x] iPhone and iPad app sharing the same kitten, brain and ball: a room with day and night, touch gestures and a toolbar
 - [ ] Phase 2: a feather wand toy
 - [ ] Phase 2: optional sound effects (soft mews and purring, muted by default) with volume control
 - [ ] Phase 3: belly-up roll ("trap"), more Easter eggs, richer learned behaviours
@@ -156,6 +195,7 @@ tests/              xUnit tests for Mochi.Core
 | Stalks and pounces on a wiggling pointer | ✅ unit-tested |
 | Ball: thrown, chased, caught in mid-air, fetched back; batted about when left lying | ✅ unit-tested + simulated film (`Mochi.Preview --life`) |
 | Says "Hi!" on sign-in/wake; snacks; cat TV; work; chase game | ✅ unit-tested |
+| iPhone/iPad app | ✅ touch host unit-tested and rendered (`Mochi.Preview --phone`); iOS code compiles against the iOS 26 SDK. Still to do: a first run on a Mac / iPhone |
 | Right-click menu and tray controls work | ✅ built; menu items exercised via the brain commands |
 | Launches reliably; single instance; installer/uninstaller | ✅ verified |
 | No unnecessary background resource use | ✅ ~18 MB working set, <0.5 % total CPU active, paused when hidden/locked/display off |

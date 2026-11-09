@@ -44,15 +44,26 @@ src/Mochi.Core        (platform‑neutral: net10.0 + SkiaSharp)
   Play/       YarnBall (ball physics, landing prediction), YarnBallRenderer, Prop + PropRenderer (milk, treats, TV, laptop)
   Interaction/ PointerTracker (click / multi‑click / long‑press / drag / petting strokes) -> InteractionManager
   Effects/    Particles (hearts, Zzz, sparkles, marks, dream bubble, speech bubbles)
+  Stage/      PetStage: Mochi on one touch screen – the room, touches mapped to the desktop gestures, view layout, drawing
   Persistence/ Settings + pet memory (JSON, atomic writes)           -> SettingsManager, PersistenceManager
 src/Mochi.App         (Windows host: net10.0-windows)
   Platform/   LayeredWindow, Native (Win32 calls), Displays (monitors, idle time, full-screen check, startup registration), SelfInstaller -> DesktopWindowManager, IdleDetector
   PetController (frame loop glue), MochiAppContext (tray icon, menus), Ui/ (WPF settings and welcome) -> SystemTrayManager
-tools/Mochi.Preview   renders pose sheets and ball / daily-life films for visual QA, and builds the app icon
-tests/Mochi.Core.Tests unit tests for behaviour, idle policy, physics, ball play, input detection, persistence, rendering
+tools/Mochi.Preview   renders pose sheets, ball / daily-life films and iPhone screens for visual QA, and builds the app icons
+tests/Mochi.Core.Tests unit tests for behaviour, idle policy, physics, ball play, input detection, touch, persistence, rendering
+src/Mochi.iOS         (iPhone/iPad host: net10.0-ios, ~280 lines)
+  PetViewController (room, kitten and ball as Skia views, toolbar, touches, display-link loop), SceneDelegate, AppDelegate
 ```
 
 Only `Mochi.App` touches Win32. A macOS host would re‑implement the `Platform` folder (NSPanel + CALayer) and reuse `Mochi.Core` unchanged.
+
+The iPhone/iPad app works this way. iOS doesn't allow windows over other apps, so Mochi lives in its own room. `PetStage` (in `Mochi.Core`, unit-tested on Windows) does everything that isn't UIKit:
+* It turns touches into the desktop's gestures (tap = click, press and hold = pick up, finger strokes = petting; elsewhere the finger is the cursor).
+* It hit-tests against a small rendered silhouette.
+* It lays out the kitten's and the ball's views on whole device pixels.
+* It paints the day/night room.
+
+`Mochi.iOS` is only the UIKit glue: three `SKCanvasView`s, a `UIToolbar`, a `CADisplayLink` loop and scene lifecycle events (coming back after two minutes or more gets a "Hi!").
 
 ## 5. Frame loop
 
