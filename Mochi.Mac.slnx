@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Mochi.Core/Mochi.Core.csproj" />
+    <Project Path="src/Mochi.Mac/Mochi.Mac.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Mochi.Core.Tests/Mochi.Core.Tests.csproj" />
+  </Folder>
+</Solution>

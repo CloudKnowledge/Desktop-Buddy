@@ -1,15 +1,28 @@
-# Mochi – a fluffy golden tabby kitten that lives on your desktop
+# Mochi – a fluffy golden tabby kitten that lives on your desktop and phone
 
 Mochi is a small, fluffy golden tabby kitten with big teal eyes (and a string of twinkling fairy lights) that
-lives on your Windows desktop. It sits on top of your
-taskbar with its tail tucked around its paws, wanders around, curls up for a nap when you step away, wakes up
-and greets you when you come back, and purrs when you stroke its head. It is a native desktop app (not a
+lives on your Windows or Mac desktop. It sits on top of your
+taskbar or Dock with its tail tucked around its paws, wanders around, curls up for a nap when you step away, wakes up
+and greets you when you come back, and purrs when you stroke its head. It is a native app (not a
 website, GIF or screensaver), it is drawn live in HD at any size, and it stays out of the way of your work.
-There is also an [iPhone and iPad version](#iphone-and-ipad) with the same kitten.
+On iPhone, iPad and Android phones, Mochi lives in its own cosy room.
 
 ![Mochi at real size on dark and light backgrounds](docs/images/realsize.png)
 
-## Install
+## Platforms
+
+Every app shares one kitten: the same brain, personality, drawing and ball physics ([src/Mochi.Core](src/Mochi.Core)).
+
+| Platform | Where Mochi lives | Project | How to get it |
+|---|---|---|---|
+| **Windows 10 / 11** (laptop or desktop) | On top of the taskbar, above your apps | [src/Mochi.App](src/Mochi.App) | [Installer or portable exe](#install-on-windows) |
+| **Mac** (macOS 13+, Apple silicon or Intel) | On top of the Dock, above your apps | [src/Mochi.Mac](src/Mochi.Mac) | [Build on a Mac](#mac-app) · [details](#mac) |
+| **iPhone / iPad** (iOS 15+) | In its own room, with a toolbar | [src/Mochi.iOS](src/Mochi.iOS) | [Build on a Mac](#iphone--ipad-app) · [details](#iphone-and-ipad) |
+| **Android phones and tablets** (Android 11+) | In its own room, with a bar of buttons | [src/Mochi.Android](src/Mochi.Android) | [Build on Windows, Mac or Linux](#android-app) · [details](#android) |
+
+Phones don't let apps float over other apps, which is why Mochi has a room there.
+
+## Install on Windows
 
 | Option | How |
 |---|---|
@@ -21,7 +34,13 @@ Both executables are self-contained (no .NET installation needed) and run on Win
 On the very first launch a small Welcome window asks for a name, personality and coat, and whether Mochi should
 start when you sign in (off unless you tick it).
 
+The Mac, iPhone/iPad and Android apps aren't in the app stores yet. Build them from source as shown in
+[Build from source](#build-from-source).
+
 ## Playing with Mochi
+
+This table is for Windows. On a Mac it works the same way: Control-click or two-finger click instead of
+right-click, and the menu bar icon takes the place of the tray icon.
 
 | You do | Mochi does |
 |---|---|
@@ -57,6 +76,16 @@ treats every so often, settles down to watch cat TV, works on its laptop (more o
 plays with its ball and more – with randomised timing and
 cool-downs so it never loops robotically and never demands attention.
 
+## Mac
+
+The Mac app ([src/Mochi.Mac](src/Mochi.Mac)) is the desktop kitten again: it walks along the top of the Dock,
+floats above your apps without taking focus, and lets clicks through everywhere except on the kitten itself. It
+supports the same play as on Windows: clicks, hover petting, picking it up, the ball, snacks, cat TV and work. It
+naps when you're away and says hi when the Mac wakes or unlocks. Use the menu bar icon or Control-click Mochi for
+the menu (personality, look, size, rename, ghost mode, hide from screen sharing, hide over full-screen apps, open at
+login). Opening the app again calls Mochi over. Settings and memories live in `~/Library/Application Support/Mochi`,
+logs in `~/Library/Logs/Mochi`.
+
 ## iPhone and iPad
 
 The iPhone/iPad app ([src/Mochi.iOS](src/Mochi.iOS)) shares Mochi's brain, drawing and ball physics with the Windows
@@ -77,6 +106,12 @@ window shows the sky by day and the moon and stars at night.
 | **More** | Pet, say hi, coat and accessory |
 
 Settings and memories stay on the device.
+
+## Android
+
+The Android app ([src/Mochi.Android](src/Mochi.Android), Android 11+) is the same room as on the iPhone. It uses the
+same touch gestures, and a bar at the bottom holds **Ball** (press and hold to put the ball away), **Feed**, **TV**,
+**Work**, **Nap** and **More**. Settings and memories stay on the device.
 
 ## Settings
 
@@ -128,14 +163,40 @@ For a real device, set `CFBundleIdentifier` in [src/Mochi.iOS/Info.plist](src/Mo
 Apple developer team owns, with a matching provisioning profile installed through Xcode. `Mochi.iOS.slnx` opens the iOS
 app together with the shared core and its tests in Rider or VS Code (C# Dev Kit + .NET MAUI extension).
 
+### Mac app
+
+Building the Mac app needs a Mac with Xcode, plus the .NET 10 SDK with the macOS workload (`dotnet workload install macos`):
+
+```bash
+dotnet build src/Mochi.Mac -t:Run          # build and run Mochi.app
+dotnet publish src/Mochi.Mac -c Release    # Mochi.app / .pkg for Apple silicon and Intel
+```
+
+To share the app with others, sign it with a Developer ID and notarize it. Otherwise Gatekeeper blocks it on other Macs.
+"Open at login" (`SMAppService`) also needs a signed app. `Mochi.Mac.slnx` opens the Mac app with the core and tests.
+
+### Android app
+
+Building the Android app works on Windows, macOS or Linux, with the .NET 10 SDK and the Android workload
+(`dotnet workload install android`; Visual Studio or Android Studio provides the Android SDK and an emulator):
+
+```powershell
+dotnet build src/Mochi.Android -t:Run                     # build, install and start on an emulator or a USB-debugging phone
+dotnet publish src/Mochi.Android -c Release -f net10.0-android   # signed .aab/.apk in bin/Release (set AndroidSigningKeyStore etc. for Play)
+```
+
+`Mochi.Android.slnx` opens the Android app with the core and tests.
+
 Project layout (details in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)):
 
 ```
 src/Mochi.Core      platform-neutral: rig + renderer, animator, behaviour state machine, gestures, effects, persistence,
                     and the touch-screen stage (room, touch input, view layout) used by the iPhone/iPad app
 src/Mochi.App       Windows host: layered window, tray/menus, settings (WPF Fluent), installer, idle/lock/fullscreen detection
+src/Mochi.Mac       Mac host: floating panels above the Dock, menu bar icon and menu, idle/lock/sleep detection, login item (Mochi.Mac.slnx)
 src/Mochi.iOS       iPhone/iPad host: room, kitten and ball views, toolbar, touches, frame loop (Mochi.iOS.slnx)
-tools/Mochi.Preview visual QA contact sheets, iPhone screens, and app-icon generation
+src/Mochi.Android   Android host: room, kitten and ball views, action bar, touches, frame loop (Mochi.Android.slnx)
+tools/Mochi.Preview visual QA contact sheets, iPhone screens, and app-icon generation (--icon, --ios-icon, --mac-icon, --android-icon)
 tests/              xUnit tests for Mochi.Core
 ```
 
@@ -175,12 +236,13 @@ tests/              xUnit tests for Mochi.Core
 - [x] Phase 2: yarn ball – throw it (menu, click or drag-and-fling), physics with bounces and rolling, mid-air catches, fetch back to you, solo batting/stalking/pouncing
 - [x] Saying "Hi!" with a wave at sign-in and when the laptop wakes; snacks (milk, treats); cat TV; working on a laptop; game of chase with the pointer
 - [x] iPhone and iPad app sharing the same kitten, brain and ball: a room with day and night, touch gestures and a toolbar
+- [x] Mac desktop app (above the Dock, menu bar icon) and Android app (the room, as on iPhone)
 - [ ] Phase 2: a feather wand toy
 - [ ] Phase 2: optional sound effects (soft mews and purring, muted by default) with volume control
 - [ ] Phase 3: belly-up roll ("trap"), more Easter eggs, richer learned behaviours
 - [ ] Phase 4: climbing and sitting on window edges, a cardboard box to sit in, more accessories/skins, focus/Pomodoro and stretch reminders, low-battery reaction
 - [ ] Phase 4: walking across monitor boundaries (today Mochi stays on the monitor it is on, but can be carried anywhere)
-- [ ] Phase 5: code signing, MSIX/winget packaging, auto-update, macOS host (Mochi.Core is already platform-neutral)
+- [ ] Phase 5: code signing, MSIX/winget packaging, auto-update, Mac notarization, Play Store listing
 
 ### Acceptance criteria
 
@@ -196,6 +258,8 @@ tests/              xUnit tests for Mochi.Core
 | Ball: thrown, chased, caught in mid-air, fetched back; batted about when left lying | ✅ unit-tested + simulated film (`Mochi.Preview --life`) |
 | Says "Hi!" on sign-in/wake; snacks; cat TV; work; chase game | ✅ unit-tested |
 | iPhone/iPad app | ✅ touch host unit-tested and rendered (`Mochi.Preview --phone`); iOS code compiles against the iOS 26 SDK. Still to do: a first run on a Mac / iPhone |
+| Mac app | ✅ compiles against the macOS 26 SDK. Still to do: a first run on a Mac |
+| Android app | ✅ compiles against the Android 16 (API 36) SDK; shares the unit-tested touch host. Still to do: a first run on an emulator / phone |
 | Right-click menu and tray controls work | ✅ built; menu items exercised via the brain commands |
 | Launches reliably; single instance; installer/uninstaller | ✅ verified |
 | No unnecessary background resource use | ✅ ~18 MB working set, <0.5 % total CPU active, paused when hidden/locked/display off |

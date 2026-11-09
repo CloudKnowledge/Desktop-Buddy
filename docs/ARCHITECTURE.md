@@ -53,17 +53,26 @@ tools/Mochi.Preview   renders pose sheets, ball / daily-life films and iPhone sc
 tests/Mochi.Core.Tests unit tests for behaviour, idle policy, physics, ball play, input detection, touch, persistence, rendering
 src/Mochi.iOS         (iPhone/iPad host: net10.0-ios, ~280 lines)
   PetViewController (room, kitten and ball as Skia views, toolbar, touches, display-link loop), SceneDelegate, AppDelegate
+src/Mochi.Android     (Android host: net10.0-android, API 30+)
+  MainActivity (room, kitten and ball as SKCanvasViews, action bar with popup menus, touches, Choreographer loop, window insets)
+src/Mochi.Mac         (Mac desktop host: net10.0-macos, 13+)
+  Platform/   PetWindow (borderless non-activating NSPanel, Skia pixels shared with a CGBitmapContext, per-pixel click-through),
+              Screens (NSScreen floors above the Dock, top-left coordinates, idle time, SMAppService login item)
+  PetController (frame loop glue), AppDelegate (menu bar icon and menu, welcome / rename prompt)
 ```
 
-Only `Mochi.App` touches Win32. A macOS host would re‑implement the `Platform` folder (NSPanel + CALayer) and reuse `Mochi.Core` unchanged.
+Only `Mochi.App` touches Win32 and only `Mochi.Mac` touches AppKit. The Mac host works like the Windows one. Each actor
+is a small transparent panel above other apps. Because AppKit sends mouse moves only to the active app, the host polls
+the pointer each frame. It turns a panel's mouse handling on only while the pointer is over a visible pixel, so hovering
+is petting and clicks elsewhere fall through.
 
-The iPhone/iPad app works this way. iOS doesn't allow windows over other apps, so Mochi lives in its own room. `PetStage` (in `Mochi.Core`, unit-tested on Windows) does everything that isn't UIKit:
+The iPhone/iPad and Android apps work this way. Phones don't allow windows over other apps, so Mochi lives in its own room. `PetStage` (in `Mochi.Core`, unit-tested on Windows) does everything that isn't UIKit or Android views:
 * It turns touches into the desktop's gestures (tap = click, press and hold = pick up, finger strokes = petting; elsewhere the finger is the cursor).
 * It hit-tests against a small rendered silhouette.
 * It lays out the kitten's and the ball's views on whole device pixels.
 * It paints the day/night room.
 
-`Mochi.iOS` is only the UIKit glue: three `SKCanvasView`s, a `UIToolbar`, a `CADisplayLink` loop and scene lifecycle events (coming back after two minutes or more gets a "Hi!").
+`Mochi.iOS` is only the UIKit glue: three `SKCanvasView`s, a `UIToolbar`, a `CADisplayLink` loop and scene lifecycle events (coming back after two minutes or more gets a "Hi!"). `Mochi.Android` is the same glue for Android views: three `SKCanvasView`s moved by translation, a bar of buttons with `PopupMenu`s, a `Choreographer` loop and `OnResume`/`OnPause`.
 
 ## 5. Frame loop
 

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-macos</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <!-- 13.0 for SMAppService ("Open at login"). -->
+    <SupportedOSPlatformVersion>13.0</SupportedOSPlatformVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Mochi</AssemblyName>
+    <RootNamespace>Mochi.Mac</RootNamespace>
+    <!-- Settings and memory are saved with reflection-based System.Text.Json (shared with the other apps). -->
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Mochi.Core\Mochi.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -56,6 +56,62 @@ if (iosIconArg >= 0 && iosIconArg + 1 < args.Length)
     return;
 }
 
+// --mac-icon <AppIcon.appiconset dir>: the Mac app icon, a rounded tile with margins as macOS expects, at every size.
+var macIconArg = Array.IndexOf(args, "--mac-icon");
+if (macIconArg >= 0 && macIconArg + 1 < args.Length)
+{
+    var dir = Path.GetFullPath(args[macIconArg + 1]);
+    Directory.CreateDirectory(dir);
+    using var master = SKSurface.Create(new SKImageInfo(1024, 1024, SKColorType.Rgba8888, SKAlphaType.Premul));
+    var c = master.Canvas;
+    c.Clear(SKColors.Transparent);
+    var tile = new SKRoundRect(new SKRect(100, 100, 924, 924), 185, 185);
+    using (var shadow = new SKPaint { IsAntialias = true, Color = new SKColor(0, 0, 0, 70), MaskFilter = SKMaskFilter.CreateBlur(SKBlurStyle.Normal, 12) })
+    {
+        c.Save();
+        c.Translate(0, 10);
+        c.DrawRoundRect(tile, shadow);
+        c.Restore();
+    }
+    using (var sh = SKShader.CreateLinearGradient(new SKPoint(0, 100), new SKPoint(0, 924), [new SKColor(0xFF, 0xF3, 0xE4), new SKColor(0xF7, 0xCF, 0xAE)], null, SKShaderTileMode.Clamp))
+    using (var bg = new SKPaint { IsAntialias = true, Shader = sh })
+        c.DrawRoundRect(tile, bg);
+    c.Save();
+    c.ClipRoundRect(tile, antialias: true);
+    using (var face = IconArt.RenderFace(PetLook.Golden, 740))
+    using (var img = SKImage.FromBitmap(face))
+        c.DrawImage(img, 142, 170, new SKSamplingOptions(SKFilterMode.Linear));
+    c.Restore();
+    using var masterImage = master.Snapshot();
+    foreach (int size in new[] { 16, 32, 64, 128, 256, 512, 1024 })
+    {
+        using var s = SKSurface.Create(new SKImageInfo(size, size, SKColorType.Rgba8888, SKAlphaType.Premul));
+        s.Canvas.Clear(SKColors.Transparent);
+        s.Canvas.DrawImage(masterImage, new SKRect(0, 0, size, size), new SKSamplingOptions(SKCubicResampler.Mitchell));
+        Save(s, Path.Combine(dir, $"icon_{size}.png"));
+    }
+    Console.WriteLine($"Wrote the Mac icons to {dir}");
+    return;
+}
+
+// --android-icon <Resources dir>: the adaptive launcher icon's foreground (the launcher adds the shape and background).
+var androidIconArg = Array.IndexOf(args, "--android-icon");
+if (androidIconArg >= 0 && androidIconArg + 1 < args.Length)
+{
+    var dir = Path.Combine(Path.GetFullPath(args[androidIconArg + 1]), "mipmap-xxxhdpi");
+    Directory.CreateDirectory(dir);
+    // 108 dp at 4x; the face stays inside the 72 dp area every launcher mask shows.
+    using var surface = SKSurface.Create(new SKImageInfo(432, 432, SKColorType.Rgba8888, SKAlphaType.Premul));
+    surface.Canvas.Clear(SKColors.Transparent);
+    using (var face = IconArt.RenderFace(PetLook.Golden, 270))
+    using (var img = SKImage.FromBitmap(face))
+        surface.Canvas.DrawImage(img, 81, 90, new SKSamplingOptions(SKFilterMode.Linear));
+    var pngPath = Path.Combine(dir, "appicon_foreground.png");
+    Save(surface, pngPath);
+    Console.WriteLine($"Wrote {pngPath}");
+    return;
+}
+
 // --phone: the iPhone app's screen at a few moments, from the real touch-screen host (room, kitten, ball).
 if (args.Contains("--phone"))
 {

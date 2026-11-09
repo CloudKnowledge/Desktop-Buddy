@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Mochi.Android/Mochi.Android.csproj" />
+    <Project Path="src/Mochi.Core/Mochi.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Mochi.Core.Tests/Mochi.Core.Tests.csproj" />
+  </Folder>
+</Solution>
